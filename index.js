@@ -2,7 +2,7 @@ const fs = require("fs")
 const path = require("path");
 const chokidar = require('chokidar');
 const socketIO = require('socket.io');
-
+const jsonfile = require('jsonfile')
 
 // helper
 const throttle = (ms, fn) => {
@@ -32,21 +32,39 @@ fs.access(file, fs.constants.R_OK | fs.constants.W_OK, (err) => {
 
 if (!canAccess) throw new Error("No read or write access to playback.json file!");
 
-const watcher = chokidar.watch(file, {
-	persistant: true,
-});
-
-watcher.on("change", throttle(1000, (path, stats) => {
-	console.log(`${path} was changed.`)
-}));
 
 
 
 module.exports = (server) => {
 
+	let connected = false;
 	let io = socketIO(server);
 
+	let watcher = chokidar.watch(file, {
+		persistant: true,
+	});
+
+	watcher.on("change", throttle(1000, (path, stats) => {
+		console.log(`${path} has changed.`);
+		if (connected) {
+			jsonfile.readFile(path, function(err, data) {
+				if (err) {
+					console.error("Error parsing JSON:", err);
+				}
+				else {
+		 			io.emit("update", data);
+				}
+			})
+		}
+		
+	}));
+
+
 	io.on('connection', (client) => {
+		connected = true;
 		console.log("client connected!")
+		client.on("disconnect", () => {
+			connected = false;
+		})
 	});
 }

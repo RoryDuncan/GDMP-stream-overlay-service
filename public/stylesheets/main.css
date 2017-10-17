@@ -3,6 +3,11 @@ body {
 }
 
 
-.music-player {
+.media-player {
 	color: #0cc;
+}
+
+.media-player .album-art img {
+	max-width: 20rem;
+	border: 1px solid #f00;
 }
