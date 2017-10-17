@@ -1,0 +1,22 @@
+{
+  "name": "gdmp-stream-overlay-service",
+  "version": "1.0.0",
+  "description": "Interfaces with Google Desktop Music Player to display song details in a stream overlay",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RoryDuncan/GDMP-stream-overlay-service.git"
+  },
+  "author": "Rory Duncan",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/RoryDuncan/GDMP-stream-overlay-service/issues"
+  },
+  "homepage": "https://github.com/RoryDuncan/GDMP-stream-overlay-service#readme",
+  "dependencies": {
+    "socket.io": "^2.0.3"
+  }
+}
