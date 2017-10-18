@@ -4,3 +4,7 @@ Interfaces with Google Desktop Music Player to display song details in a stream 
 
 
 For linux, you will need to install and use [obs-linuxbrowser](https://github.com/bazukas/obs-linuxbrowser).
+
+# Example
+
+![Screenshot Example](example.png)
