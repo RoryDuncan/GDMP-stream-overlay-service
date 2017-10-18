@@ -44,12 +44,12 @@ module.exports = (server) => {
 		persistant: true,
 	});
 
-	watcher.on("change", throttle(1000, (path, stats) => {
+	watcher.on("change", throttle(2000, (path, stats) => {
 		console.log(`${path} has changed.`);
 		if (connected) {
 			jsonfile.readFile(path, function(err, data) {
 				if (err) {
-					console.error("Error parsing JSON:", err);
+					// console.error("Error parsing JSON:", err);
 				}
 				else {
 		 			io.emit("update", data);
