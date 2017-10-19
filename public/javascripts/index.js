@@ -1,48 +1,83 @@
 (function(){
 
-	const template = function(data){
+	const root = document.getElementById("media-player-root");
+	let currentSong = null;
+
+
+	const trackTemplate = (track) => `<div style="left: ${track.position}" class="cursor"></div>`
+
+	const template = function(data, player, track){
+
 		return `
-			<div class="media-player">
-				<div class="album-art">
-					<img src="${data.song.albumArt}" />
+			<div class="media-player" style="width: ${player.width}px">
+				<div class="song-details">
+					<div class="album-art">
+						<img src="${data.song.albumArt}" />
+					</div>
+					<div class="song">
+						<div class="song-title">
+							${data.song.title}
+						</div>
+						<div class="album-title">
+							${data.song.album}
+						</div>
+						<div class="artist">
+							${data.song.artist}
+						</div>
+					</div>
 				</div>
-				<div class="song">
-					<div class="song-title ${data.songClasses.title}">
-						${data.song.title}
-					</div>
-					<div class="album-title ${data.songClasses.album}">
-						${data.song.album}
-					</div>
-					<div class="artist ${data.songClasses.artist}">
-						${data.song.artist}
-					</div>
-				</div>
+				<div class="track">${trackTemplate(track)}</div>
 			</div>
 		`
 	}
 
 
+	const determinePlayerWidth = (song) => {
+		
+		let em = 14;
+		let width = 34; // base size
+
+		// use the longest string as the base
+		let max  = Math.max(song.title.length, song.album.length, song.artist.length);
+
+		// the font sizes between song and other fields are different
+		if (song.title.length < Math.max(song.album.length, song.artist.length)) {
+			em = 10;
+		}
+
+		// always be at least 32rem
+		width = Math.max(width, max) * em;
+
+		return width;
+	}
+
+
 	const render = (data) => {
-		let root = document.getElementById("media-player-root")
-		if (root != null) {
+		
+
+		let track = {
+			position: 0,
+		};
 
 
-			data.songClasses = {};
+		// only update the track position
+		if (currentSong == data.song.title) {
+			console.log("Updating track")
+			let trackNode = document.querySelector(".track");
+			trackNode.innerHTML = trackTemplate(track);
 
-			let limits = {
-				"title": 35,
-				"album": 50,
-				"artist": 50,
-			};
-
-
-			["album", "title", "artist"].forEach((key, i) => {
-				let prop = data.song[key];
-				data.songClasses[key] = (prop != null && prop.length > limits[key]) ? "fs-sm" : "";
-			})
-
-			console.log("data:", data)
-			let html = template(data);
+		}
+		// update the full media-player
+		else {
+			console.log("new song")
+			console.log(data)
+			currentSong = data.song.title;
+			
+			let player = {
+				width: determinePlayerWidth(data.song),
+			}
+			
+			let html = template(data, player, track);
 			root.innerHTML = html;
 		}
 	}
@@ -50,8 +85,10 @@
 
 	var socket = io();
 
-	socket.on("update", (data) => {
-		window.requestAnimationFrame(() => render(data));
-	})
+	if (root != null) {
+		socket.on("update", (data) => {
+			window.requestAnimationFrame(() => render(data));
+		})
+	}
 
 })()

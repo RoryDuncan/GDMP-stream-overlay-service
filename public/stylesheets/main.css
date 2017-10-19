@@ -18,15 +18,19 @@ body {
 
 
 .media-player {
-	font-family: "Josefin Sans";
-	background-color: #08080a;
-	color: #666;
-	max-width: 36rem;
-	display: flex;
+	font-family: "Share Tech Mono";
+	background-color: #222;
+	width: 36rem;
 	margin: 1rem 1rem;
 	padding: 1rem 1rem;
 	border-radius: 3px;
+	border-bottom: 3px solid #eee;
 }
+
+.media-player .song-details {
+	display: flex;
+}
+
 
 .media-player .song {
 	padding-top: 0.25rem;
@@ -37,13 +41,13 @@ body {
 }
 
 .media-player .song .fs-sm {
-	font-size: 1em;
+	font-size: 1.2em;
 }
 
 .media-player .song-title {
 	color: #f2f2f2;
 	font-size: 1.5rem;
-	font-family: "Share Tech Mono";
+	
 }
 
 .media-player .album-title,
@@ -58,16 +62,19 @@ body {
 	top: 0.25rem;
 }
 
+
+.media-player .artist:before,
+.media-player .album-title:before {
+	color: #987;
+	font-weight: 400;
+}
+
 .media-player .album-title:before {
 	content: "on ";
-	color: #333;
-	font-weight: 400;
 }
 
 .media-player .artist:before {
 	content: "by ";
-	color: #333;
-	font-weight: 400;
 }
 
 .media-player .artist {
@@ -80,11 +87,20 @@ body {
 .media-player .album-art {
 	width: 6rem;
 	height: 6rem;
-	margin-right: 1rem;
-	background-color: #111;
+	margin-right: 2rem;
+	background-color: #068;
 }
 
 .media-player .album-art img {
 	width: 100%;
 	display: block;
+}
+
+.media-player .track {
+	display: none;
+	margin-top: 1rem;
+	height: 0.5rem;
+	width: 100%;
+	position: relative;
+	background-color: #333;
 }
