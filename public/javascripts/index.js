@@ -1,32 +1,36 @@
 (function(){
 
 	const root = document.getElementById("media-player-root");
-	let currentSong = null;
+	let canvas = null;
+	let context = null;
+	let listeners = {};
+
+	const on = (channel, fn) => {
+		listeners[channel] = fn;
+	}
 
 
-	const trackTemplate = (track) => `<div style="left: ${track.position}" class="cursor"></div>`
-
-	const template = function(data, player, track){
+	const template = function(song, player) {
 
 		return `
 			<div class="media-player" style="width: ${player.width}px">
 				<div class="song-details">
 					<div class="album-art">
-						<img src="${data.song.albumArt}" />
+						<img src="${song.albumArt}" />
 					</div>
 					<div class="song">
 						<div class="song-title">
-							${data.song.title}
+							${song.title}
 						</div>
 						<div class="album-title">
-							${data.song.album}
+							${song.album}
 						</div>
 						<div class="artist">
-							${data.song.artist}
+							${song.artist}
 						</div>
 					</div>
 				</div>
-				<div class="track">${trackTemplate(track)}</div>
+				<canvas id="track" width="${player.trackWidth}px" height=${player.trackHeight}px></canvas>
 			</div>
 		`
 	}
@@ -51,44 +55,86 @@
 		return width;
 	}
 
+	const render = {
 
-	const render = (data) => {
-		
+		progress: function(time) {
 
-		let track = {
-			position: 0,
-		};
+			if (canvas == null) return;
+
+			let w = canvas.width;
+			let h = canvas.height;
 
 
-		// only update the track position
-		if (currentSong == data.song.title) {
-			console.log("Updating track")
-			let trackNode = document.querySelector(".track");
-			trackNode.innerHTML = trackTemplate(track);
+			let size = h;
+			let incrementCount = w / (h * 2);
 
-		}
-		// update the full media-player
-		else {
-			console.log("new song")
-			console.log(data)
-			currentSong = data.song.title;
+			let timeRatio = (time.current / time.total)
+			console.log(time, timeRatio.toFixed(2))
+			let threshold = ~~(timeRatio * 100);
+
+			context.fillStyle = "#222";
+			context.clearRect(0, 0, w, h)
+			context.fillStyle = "#0cc";
+
+			for (let i = 0, ii = incrementCount; i < ii; i++) {
+				
+				if ((i * 100) <= threshold) {
+					context.fillStyle = "#0cc";					
+				}
+				else {
+					context.fillStyle = "#aaa"
+				}
+
+				let x = i * size*2
+				context.fillRect(x, 0, size, size)
+			}
+		},
+
+		player: function(data) {
+
+			console.log("new song!", data)
 			
+			let width = determinePlayerWidth(data); 
 			let player = {
-				width: determinePlayerWidth(data.song),
+				width,
+				trackWidth: width - (20),
+				trackHeight: 2,
 			}
 			
-			let html = template(data, player, track);
+			let html = template(data, player);
 			root.innerHTML = html;
-		}
+
+			canvas = document.getElementById("track");
+			context = canvas.getContext("2d");
+		},
+
 	}
 
 
-	var socket = io();
+	const url = "ws://localhost:5672";
+	const ws = new WebSocket(url)
 
-	if (root != null) {
-		socket.on("update", (data) => {
-			window.requestAnimationFrame(() => render(data));
-		})
+	on("track", data => render.player(data))
+	on("time", data => render.progress(data))
+	
+	console.log(ws)
+
+	ws.onopen = () => {
+		console.log(`Connected to ${url}`)
+	};
+
+
+
+	ws.onmessage = function (event) {
+		let data = JSON.parse(event.data);
+		let name = data.channel;
+
+		let listener = listeners[name];		
+
+		if (listener) {
+			console.log(`Triggering ${name}`)
+			listener(data.payload)
+		}
 	}
 
 })()

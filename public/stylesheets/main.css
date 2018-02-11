@@ -96,10 +96,9 @@ body {
 	display: block;
 }
 
-.media-player .track {
-	display: none;
-	margin-top: 1rem;
-	height: 0.5rem;
+.media-player #track {
+	display: block;
+	margin-top: 0.5rem;
 	width: 100%;
 	position: relative;
 	background-color: #333;
